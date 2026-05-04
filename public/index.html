@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>BookLight</title>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div>
+      <h1>BookLight</h1>
+      <p>Open Source AI Study Buddy</p>
+    </div>
+
+    <p id="aiStatus">Checking AI status...</p>
+  </header>
+
+  <main class="layout">
+    <section class="main-panel">
+      <div class="card">
+        <div class="section-header">
+          <h2>AI Tutor</h2>
+
+          <div>
+            <button onclick="newChat()">New Chat</button>
+            <button onclick="loadSessions()">Refresh Sessions</button>
+          </div>
+        </div>
+
+        <div class="chat-layout">
+          <aside class="sessions-panel">
+            <h3>Saved Sessions</h3>
+            <div id="sessionsList"></div>
+          </aside>
+
+          <section class="chat-panel">
+            <div id="chatMessages"></div>
+
+            <textarea
+              id="chatInput"
+              rows="4"
+              placeholder="Ask the AI tutor for study help..."
+            ></textarea>
+
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="createTaskFromLastAi()">AI Reply → Task</button>
+            <button onclick="createEventFromLastAi()">AI Reply → Calendar Event</button>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <div class="card">
+        <h2>To-Do List</h2>
+
+        <input id="taskInput" placeholder="Add a task" />
+
+        <button onclick="addTask()">Add Task</button>
+        <button onclick="clearCompletedTasks()" class="danger">Clear Completed</button>
+
+        <div id="taskList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Month Calendar</h2>
+
+        <button onclick="previousMonth()">Previous</button>
+        <button onclick="nextMonth()">Next</button>
+
+        <h3 id="monthLabel"></h3>
+
+        <input id="eventTitle" placeholder="Event title" />
+        <input id="eventDate" type="date" />
+        <input id="eventTime" type="time" />
+
+        <button onclick="addEvent()">Add Event</button>
+
+        <div id="calendarGrid" class="calendar-grid"></div>
+
+        <h3>Events</h3>
+        <div id="eventList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Pomodoro Timer</h2>
+
+        <div id="timerDisplay">25:00</div>
+
+        <button onclick="startTimer()">Start</button>
+        <button onclick="pauseTimer()">Pause</button>
+        <button onclick="resetTimer()">Reset</button>
+
+        <h3>Study Stats</h3>
+        <p>Today: <span id="dayStats">0</span> minutes</p>
+        <p>This Week: <span id="weekStats">0</span> minutes</p>
+        <p>This Month: <span id="monthStats">0</span> minutes</p>
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

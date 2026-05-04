@@ -1,0 +1,179 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4efe6;
+  color: #222;
+}
+
+.topbar {
+  background: #5d3b1f;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar h1 {
+  margin: 0;
+}
+
+.topbar p {
+  margin: 5px 0 0;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.chat-layout {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 20px;
+}
+
+.sessions-panel {
+  border-right: 1px solid #ddd;
+  padding-right: 15px;
+}
+
+#chatMessages {
+  min-height: 420px;
+  max-height: 520px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fafafa;
+  margin-bottom: 10px;
+}
+
+.message {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+}
+
+.user {
+  background: #d8c3a5;
+  text-align: right;
+}
+
+.ai {
+  background: #e8e8e8;
+}
+
+input,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+button {
+  background: #5d3b1f;
+  color: white;
+  border: none;
+  padding: 9px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 3px;
+}
+
+button:hover {
+  background: #402612;
+}
+
+.danger {
+  background: #9b2f2f;
+}
+
+.danger:hover {
+  background: #701c1c;
+}
+
+.session-item,
+.task-item,
+.event-item {
+  border-bottom: 1px solid #ddd;
+  padding: 8px 0;
+}
+
+.done {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.calendar-cell {
+  min-height: 75px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 13px;
+}
+
+.calendar-day {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.calendar-event {
+  background: #d8c3a5;
+  padding: 3px;
+  border-radius: 5px;
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+#timerDisplay {
+  font-size: 44px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px;
+}
+
+@media (max-width: 950px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sessions-panel {
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+  }
+}
