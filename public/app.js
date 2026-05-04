@@ -31,14 +31,24 @@ function escapeHtml(text) {
 
 async function checkAiStatus() {
   const data = await api("/api/status");
+  const status = document.getElementById("aiStatus");
 
-  document.getElementById("aiStatus").textContent = "AI status: " + data.status;
+  status.textContent = "Gemini: " + data.status;
+  status.className = "status-pill " + data.status;
 }
 
 function renderChat() {
   const chatBox = document.getElementById("chatMessages");
 
   chatBox.innerHTML = "";
+
+  if (currentMessages.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "message ai";
+    empty.textContent = "Ask a study question to start. Your chat will be saved as a session.";
+    chatBox.appendChild(empty);
+    return;
+  }
 
   currentMessages.forEach((message) => {
     const div = document.createElement("div");
@@ -134,7 +144,7 @@ async function loadSessions() {
     div.innerHTML = `
       <strong>${escapeHtml(session.title)}</strong><br>
       <button onclick="openSession('${session._id}')">Open</button>
-      <button onclick="renameSession('${session._id}')">Rename</button>
+      <button onclick="renameSession('${session._id}')" class="secondary">Rename</button>
       <button onclick="deleteSession('${session._id}')" class="danger">Delete</button>
     `;
 
@@ -391,7 +401,7 @@ function renderEventList(events) {
       Date: ${escapeHtml(event.date)}
       ${event.time ? " Time: " + escapeHtml(event.time) : ""}<br>
       Source: ${escapeHtml(event.source || "manual")}<br>
-      <button onclick="editEvent('${event._id}')">Edit</button>
+      <button onclick="editEvent('${event._id}')" class="secondary">Edit</button>
       <button onclick="deleteEvent('${event._id}')" class="danger">Delete</button>
     `;
 
@@ -532,6 +542,7 @@ async function loadStats() {
 // ---------------- INITIAL LOAD ----------------
 
 checkAiStatus();
+renderChat();
 loadSessions();
 loadTasks();
 loadEvents();

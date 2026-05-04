@@ -12,69 +12,84 @@
 <body>
   <header class="topbar">
     <div>
+      <p class="eyebrow">Open Source Study Dashboard</p>
       <h1>BookLight</h1>
-      <p>Open Source AI Study Buddy</p>
     </div>
 
-    <p id="aiStatus">Checking AI status...</p>
+    <div id="aiStatus" class="status-pill">Checking Gemini...</div>
   </header>
 
   <main class="layout">
-    <section class="main-panel">
-      <div class="card">
-        <div class="section-header">
-          <h2>AI Tutor</h2>
-
-          <div>
-            <button onclick="newChat()">New Chat</button>
-            <button onclick="loadSessions()">Refresh Sessions</button>
-          </div>
+    <section class="main-panel card">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">AI Tutor</p>
+          <h2>Study Chat</h2>
         </div>
 
-        <div class="chat-layout">
-          <aside class="sessions-panel">
-            <h3>Saved Sessions</h3>
-            <div id="sessionsList"></div>
-          </aside>
+        <div class="button-row">
+          <button onclick="newChat()">New Chat</button>
+          <button onclick="loadSessions()" class="secondary">Refresh</button>
+        </div>
+      </div>
 
-          <section class="chat-panel">
-            <div id="chatMessages"></div>
+      <div class="chat-layout">
+        <aside class="sessions-panel">
+          <h3>Saved Sessions</h3>
+          <div id="sessionsList"></div>
+        </aside>
 
-            <textarea
-              id="chatInput"
-              rows="4"
-              placeholder="Ask the AI tutor for study help..."
-            ></textarea>
+        <section class="chat-panel">
+          <div id="chatMessages" class="chat-messages"></div>
 
+          <textarea
+            id="chatInput"
+            rows="4"
+            placeholder="Ask Gemini for study help..."
+          ></textarea>
+
+          <div class="button-row">
             <button onclick="sendMessage()">Send</button>
-            <button onclick="createTaskFromLastAi()">AI Reply → Task</button>
-            <button onclick="createEventFromLastAi()">AI Reply → Calendar Event</button>
-          </section>
-        </div>
+            <button onclick="createTaskFromLastAi()" class="secondary">AI → Task</button>
+            <button onclick="createEventFromLastAi()" class="secondary">AI → Event</button>
+          </div>
+        </section>
       </div>
     </section>
 
     <aside class="side-panel">
-      <div class="card">
-        <h2>To-Do List</h2>
+      <section class="card">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Tasks</p>
+            <h2>To-Do List</h2>
+          </div>
+        </div>
 
-        <input id="taskInput" placeholder="Add a task" />
+        <input id="taskInput" placeholder="Add a task..." />
 
-        <button onclick="addTask()">Add Task</button>
-        <button onclick="clearCompletedTasks()" class="danger">Clear Completed</button>
+        <div class="button-row">
+          <button onclick="addTask()">Add Task</button>
+          <button onclick="clearCompletedTasks()" class="danger">Clear Completed</button>
+        </div>
 
         <div id="taskList"></div>
-      </div>
+      </section>
 
-      <div class="card">
-        <h2>Month Calendar</h2>
+      <section class="card">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Calendar</p>
+            <h2 id="monthLabel">Month</h2>
+          </div>
 
-        <button onclick="previousMonth()">Previous</button>
-        <button onclick="nextMonth()">Next</button>
+          <div class="button-row">
+            <button onclick="previousMonth()" class="secondary">‹</button>
+            <button onclick="nextMonth()" class="secondary">›</button>
+          </div>
+        </div>
 
-        <h3 id="monthLabel"></h3>
-
-        <input id="eventTitle" placeholder="Event title" />
+        <input id="eventTitle" placeholder="Event title..." />
         <input id="eventDate" type="date" />
         <input id="eventTime" type="time" />
 
@@ -84,22 +99,39 @@
 
         <h3>Events</h3>
         <div id="eventList"></div>
-      </div>
+      </section>
 
-      <div class="card">
-        <h2>Pomodoro Timer</h2>
+      <section class="card">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Focus</p>
+            <h2>Pomodoro Timer</h2>
+          </div>
+        </div>
 
         <div id="timerDisplay">25:00</div>
 
-        <button onclick="startTimer()">Start</button>
-        <button onclick="pauseTimer()">Pause</button>
-        <button onclick="resetTimer()">Reset</button>
+        <div class="button-row center">
+          <button onclick="startTimer()">Start</button>
+          <button onclick="pauseTimer()" class="secondary">Pause</button>
+          <button onclick="resetTimer()" class="secondary">Reset</button>
+        </div>
 
-        <h3>Study Stats</h3>
-        <p>Today: <span id="dayStats">0</span> minutes</p>
-        <p>This Week: <span id="weekStats">0</span> minutes</p>
-        <p>This Month: <span id="monthStats">0</span> minutes</p>
-      </div>
+        <div class="stats-grid">
+          <div>
+            <span id="dayStats">0</span>
+            <p>Today</p>
+          </div>
+          <div>
+            <span id="weekStats">0</span>
+            <p>Week</p>
+          </div>
+          <div>
+            <span id="monthStats">0</span>
+            <p>Month</p>
+          </div>
+        </div>
+      </section>
     </aside>
   </main>
 
