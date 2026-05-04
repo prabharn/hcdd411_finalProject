@@ -7,6 +7,74 @@ let calendarDate = new Date();
 let timerSeconds = 25 * 60;
 let timerInterval = null;
 
+const defaultSettings = {
+  model: "gemini-2.0-flash",
+  pomodoroMinutes: 25,
+  theme: "dark",
+  density: "compact",
+  accent: "#38bdf8"
+};
+
+let settings = loadSettings();
+
+function loadSettings() {
+  const saved = localStorage.getItem("booklightSettings");
+
+  if (!saved) {
+    return { ...defaultSettings };
+  }
+
+  return {
+    ...defaultSettings,
+    ...JSON.parse(saved)
+  };
+}
+
+function applySettings() {
+  document.body.classList.toggle("light", settings.theme === "light");
+  document.body.classList.toggle("comfortable", settings.density === "comfortable");
+  document.documentElement.style.setProperty("--accent", settings.accent);
+
+  timerSeconds = Number(settings.pomodoroMinutes) * 60;
+  updateTimerDisplay();
+
+  document.getElementById("settingModel").value = settings.model;
+  document.getElementById("settingPomodoro").value = settings.pomodoroMinutes;
+  document.getElementById("settingTheme").value = settings.theme;
+  document.getElementById("settingDensity").value = settings.density;
+  document.getElementById("settingAccent").value = settings.accent;
+}
+
+function saveSettings() {
+  settings = {
+    model: document.getElementById("settingModel").value,
+    pomodoroMinutes: Number(document.getElementById("settingPomodoro").value),
+    theme: document.getElementById("settingTheme").value,
+    density: document.getElementById("settingDensity").value,
+    accent: document.getElementById("settingAccent").value
+  };
+
+  localStorage.setItem("booklightSettings", JSON.stringify(settings));
+  applySettings();
+
+  document.getElementById("settingsNote").textContent = "Settings saved.";
+  checkAiStatus();
+}
+
+function resetSettings() {
+  settings = { ...defaultSettings };
+  localStorage.setItem("booklightSettings", JSON.stringify(settings));
+  applySettings();
+
+  document.getElementById("settingsNote").textContent = "Settings reset.";
+  checkAiStatus();
+}
+
+function showPage(page) {
+  document.getElementById("dashboardPage").classList.toggle("hidden", page !== "dashboard");
+  document.getElementById("settingsPage").classList.toggle("hidden", page !== "settings");
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     headers: {
@@ -30,10 +98,10 @@ function escapeHtml(text) {
 // ---------------- AI CHAT ----------------
 
 async function checkAiStatus() {
-  const data = await api("/api/status");
+  const data = await api("/api/status?model=" + encodeURIComponent(settings.model));
   const status = document.getElementById("aiStatus");
 
-  status.textContent = "Gemini: " + data.status;
+  status.textContent = "Gemini: " + data.status + (data.message ? " — " + data.message : "");
   status.className = "status-pill " + data.status;
 }
 
@@ -45,7 +113,7 @@ function renderChat() {
   if (currentMessages.length === 0) {
     const empty = document.createElement("div");
     empty.className = "message ai";
-    empty.textContent = "Ask a study question to start. Your chat will be saved as a session.";
+    empty.textContent = "Ask a study question. Sessions save automatically.";
     chatBox.appendChild(empty);
     return;
   }
@@ -84,10 +152,12 @@ async function sendMessage() {
   const payload = currentSessionId
     ? {
         sessionId: currentSessionId,
-        message
+        message,
+        model: settings.model
       }
     : {
-        message
+        message,
+        model: settings.model
       };
 
   const data = await api(endpoint, {
@@ -102,6 +172,7 @@ async function sendMessage() {
     });
 
     renderChat();
+    checkAiStatus();
     return;
   }
 
@@ -117,7 +188,6 @@ async function sendMessage() {
   });
 
   renderChat();
-
   loadSessions();
 }
 
@@ -131,7 +201,6 @@ function newChat() {
 
 async function loadSessions() {
   const sessions = await api("/api/sessions");
-
   const container = document.getElementById("sessionsList");
 
   container.innerHTML = "";
@@ -157,7 +226,6 @@ async function openSession(id) {
 
   currentSessionId = session._id;
   currentMessages = session.messages;
-
   lastAiReply = "";
 
   for (let i = currentMessages.length - 1; i >= 0; i--) {
@@ -171,7 +239,7 @@ async function openSession(id) {
 }
 
 async function renameSession(id) {
-  const title = prompt("Enter the new session title:");
+  const title = prompt("New session title:");
 
   if (!title) {
     return;
@@ -179,9 +247,7 @@ async function renameSession(id) {
 
   await api("/api/sessions/" + id, {
     method: "PATCH",
-    body: JSON.stringify({
-      title
-    })
+    body: JSON.stringify({ title })
   });
 
   loadSessions();
@@ -201,14 +267,14 @@ async function deleteSession(id) {
 
 async function createTaskFromLastAi() {
   if (!lastAiReply) {
-    alert("There is no AI reply yet.");
+    alert("No AI reply yet.");
     return;
   }
 
   await api("/api/tasks", {
     method: "POST",
     body: JSON.stringify({
-      text: lastAiReply.slice(0, 140)
+      text: lastAiReply.slice(0, 120)
     })
   });
 
@@ -217,14 +283,14 @@ async function createTaskFromLastAi() {
 
 async function createEventFromLastAi() {
   if (!lastAiReply) {
-    alert("There is no AI reply yet.");
+    alert("No AI reply yet.");
     return;
   }
 
   await api("/api/events/from-ai", {
     method: "POST",
     body: JSON.stringify({
-      text: lastAiReply.slice(0, 180)
+      text: lastAiReply.slice(0, 150)
     })
   });
 
@@ -235,7 +301,6 @@ async function createEventFromLastAi() {
 
 async function loadTasks() {
   const tasks = await api("/api/tasks");
-
   const container = document.getElementById("taskList");
 
   container.innerHTML = "";
@@ -273,22 +338,17 @@ async function addTask() {
 
   await api("/api/tasks", {
     method: "POST",
-    body: JSON.stringify({
-      text
-    })
+    body: JSON.stringify({ text })
   });
 
   input.value = "";
-
   loadTasks();
 }
 
 async function toggleTask(id, completed) {
   await api("/api/tasks/" + id, {
     method: "PATCH",
-    body: JSON.stringify({
-      completed
-    })
+    body: JSON.stringify({ completed })
   });
 
   loadTasks();
@@ -304,7 +364,6 @@ async function deleteTask(id) {
 
 async function clearCompletedTasks() {
   const tasks = await api("/api/tasks");
-
   const completedTasks = tasks.filter((task) => task.completed);
 
   for (const task of completedTasks) {
@@ -327,11 +386,9 @@ function getMonthKey(date) {
 
 async function loadEvents() {
   const monthKey = getMonthKey(calendarDate);
-
   const events = await api("/api/events?month=" + monthKey);
 
   renderCalendar(events);
-  renderEventList(events);
 }
 
 function renderCalendar(events) {
@@ -344,7 +401,7 @@ function renderCalendar(events) {
   const month = calendarDate.getMonth();
 
   monthLabel.textContent = calendarDate.toLocaleString("default", {
-    month: "long",
+    month: "short",
     year: "numeric"
   });
 
@@ -377,7 +434,7 @@ function renderCalendar(events) {
       const eventDiv = document.createElement("div");
 
       eventDiv.className = "calendar-event";
-      eventDiv.textContent = `${event.time || ""} ${event.title}`;
+      eventDiv.textContent = event.title;
 
       cell.appendChild(eventDiv);
     });
@@ -386,45 +443,19 @@ function renderCalendar(events) {
   }
 }
 
-function renderEventList(events) {
-  const container = document.getElementById("eventList");
-
-  container.innerHTML = "";
-
-  events.forEach((event) => {
-    const div = document.createElement("div");
-
-    div.className = "event-item";
-
-    div.innerHTML = `
-      <strong>${escapeHtml(event.title)}</strong><br>
-      Date: ${escapeHtml(event.date)}
-      ${event.time ? " Time: " + escapeHtml(event.time) : ""}<br>
-      Source: ${escapeHtml(event.source || "manual")}<br>
-      <button onclick="editEvent('${event._id}')" class="secondary">Edit</button>
-      <button onclick="deleteEvent('${event._id}')" class="danger">Delete</button>
-    `;
-
-    container.appendChild(div);
-  });
-}
-
 function previousMonth() {
   calendarDate.setMonth(calendarDate.getMonth() - 1);
-
   loadEvents();
 }
 
 function nextMonth() {
   calendarDate.setMonth(calendarDate.getMonth() + 1);
-
   loadEvents();
 }
 
 async function addEvent() {
   const title = document.getElementById("eventTitle").value.trim();
   const date = document.getElementById("eventDate").value;
-  const time = document.getElementById("eventTime").value;
 
   if (!title || !date) {
     alert("Event title and date are required.");
@@ -435,39 +466,12 @@ async function addEvent() {
     method: "POST",
     body: JSON.stringify({
       title,
-      date,
-      time
+      date
     })
   });
 
   document.getElementById("eventTitle").value = "";
   document.getElementById("eventDate").value = "";
-  document.getElementById("eventTime").value = "";
-
-  loadEvents();
-}
-
-async function editEvent(id) {
-  const title = prompt("Enter updated event title:");
-
-  if (!title) {
-    return;
-  }
-
-  await api("/api/events/" + id, {
-    method: "PATCH",
-    body: JSON.stringify({
-      title
-    })
-  });
-
-  loadEvents();
-}
-
-async function deleteEvent(id) {
-  await api("/api/events/" + id, {
-    method: "DELETE"
-  });
 
   loadEvents();
 }
@@ -488,44 +492,39 @@ function startTimer() {
   }
 
   timerInterval = setInterval(async () => {
-    timerSeconds = timerSeconds - 1;
+    timerSeconds--;
 
     updateTimerDisplay();
 
     if (timerSeconds <= 0) {
       clearInterval(timerInterval);
-
       timerInterval = null;
 
       await api("/api/timer/log", {
         method: "POST",
         body: JSON.stringify({
-          duration: 25
+          duration: Number(settings.pomodoroMinutes)
         })
       });
 
-      timerSeconds = 25 * 60;
+      timerSeconds = Number(settings.pomodoroMinutes) * 60;
 
       updateTimerDisplay();
-
       loadStats();
 
-      alert("Pomodoro complete. Study session logged.");
+      alert("Pomodoro complete.");
     }
   }, 1000);
 }
 
 function pauseTimer() {
   clearInterval(timerInterval);
-
   timerInterval = null;
 }
 
 function resetTimer() {
   pauseTimer();
-
-  timerSeconds = 25 * 60;
-
+  timerSeconds = Number(settings.pomodoroMinutes) * 60;
   updateTimerDisplay();
 }
 
@@ -541,10 +540,10 @@ async function loadStats() {
 
 // ---------------- INITIAL LOAD ----------------
 
+applySettings();
 checkAiStatus();
 renderChat();
 loadSessions();
 loadTasks();
 loadEvents();
 loadStats();
-updateTimerDisplay();

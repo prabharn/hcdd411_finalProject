@@ -9,16 +9,18 @@ function makeTitle(message) {
 }
 
 export async function getStatus(req, res) {
-  const online = await checkGeminiStatus();
+  const model = req.query.model;
+  const status = await checkGeminiStatus(model);
 
   res.json({
-    status: online ? "online" : "offline"
+    status: status.online ? "online" : "offline",
+    message: status.message
   });
 }
 
 export async function startChat(req, res) {
   try {
-    const { sessionId, message } = req.body;
+    const { sessionId, message, model } = req.body;
 
     if (!message || !message.trim()) {
       return res.status(400).json({
@@ -44,7 +46,7 @@ export async function startChat(req, res) {
       text: message.trim()
     });
 
-    const reply = await sendMessageToGemini(session.messages);
+    const reply = await sendMessageToGemini(session.messages, model);
 
     session.messages.push({
       role: "ai",
@@ -59,14 +61,14 @@ export async function startChat(req, res) {
     });
   } catch (error) {
     res.status(500).json({
-      error: "Gemini chat failed. Check your API key and internet connection."
+      error: "Gemini chat failed. Check your API key, model name, internet connection, and quota."
     });
   }
 }
 
 export async function continueChat(req, res) {
   try {
-    const { sessionId, message } = req.body;
+    const { sessionId, message, model } = req.body;
 
     if (!sessionId || !message || !message.trim()) {
       return res.status(400).json({
@@ -87,7 +89,7 @@ export async function continueChat(req, res) {
       text: message.trim()
     });
 
-    const reply = await sendMessageToGemini(session.messages);
+    const reply = await sendMessageToGemini(session.messages, model);
 
     session.messages.push({
       role: "ai",
