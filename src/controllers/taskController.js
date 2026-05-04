@@ -26,15 +26,19 @@ export async function createTask(req, res) {
 }
 
 export async function updateTask(req, res) {
-  const task = await Task.findByIdAndUpdate(
-    req.params.id,
-    {
-      completed: req.body.completed
-    },
-    {
-      new: true
-    }
-  );
+  const update = {};
+
+  if (typeof req.body.completed === "boolean") {
+    update.completed = req.body.completed;
+  }
+
+  if (typeof req.body.text === "string") {
+    update.text = req.body.text.trim();
+  }
+
+  const task = await Task.findByIdAndUpdate(req.params.id, update, {
+    new: true
+  });
 
   if (!task) {
     return res.status(404).json({

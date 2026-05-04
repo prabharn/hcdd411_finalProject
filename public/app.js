@@ -8,7 +8,7 @@ let timerSeconds = 25 * 60;
 let timerInterval = null;
 
 const defaultSettings = {
-  model: "gemini-2.0-flash",
+  model: "llama3.2",
   pomodoroMinutes: 25,
   theme: "dark",
   density: "compact",
@@ -101,7 +101,7 @@ async function checkAiStatus() {
   const data = await api("/api/status?model=" + encodeURIComponent(settings.model));
   const status = document.getElementById("aiStatus");
 
-  status.textContent = "Gemini: " + data.status + (data.message ? " — " + data.message : "");
+  status.textContent = "Ollama: " + data.status + (data.message ? " — " + data.message : "");
   status.className = "status-pill " + data.status;
 }
 

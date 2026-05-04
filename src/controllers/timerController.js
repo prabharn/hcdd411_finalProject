@@ -2,9 +2,7 @@ import TimerLog from "../models/TimerLog.js";
 
 function startOfDay() {
   const date = new Date();
-
   date.setHours(0, 0, 0, 0);
-
   return date;
 }
 
@@ -20,10 +18,8 @@ function startOfWeek() {
 
 function startOfMonth() {
   const date = new Date();
-
   date.setDate(1);
   date.setHours(0, 0, 0, 0);
-
   return date;
 }
 

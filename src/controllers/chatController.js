@@ -1,8 +1,8 @@
 import ChatSession from "../models/ChatSession.js";
 import {
-  checkGeminiStatus,
-  sendMessageToGemini
-} from "../services/geminiService.js";
+  checkOllamaStatus,
+  sendMessageToOllama
+} from "../services/ollamaService.js";
 
 function makeTitle(message) {
   return message.trim().slice(0, 45) || "New Study Session";
@@ -10,7 +10,7 @@ function makeTitle(message) {
 
 export async function getStatus(req, res) {
   const model = req.query.model;
-  const status = await checkGeminiStatus(model);
+  const status = await checkOllamaStatus(model);
 
   res.json({
     status: status.online ? "online" : "offline",
@@ -46,7 +46,7 @@ export async function startChat(req, res) {
       text: message.trim()
     });
 
-    const reply = await sendMessageToGemini(session.messages, model);
+    const reply = await sendMessageToOllama(session.messages, model);
 
     session.messages.push({
       role: "ai",
@@ -61,7 +61,7 @@ export async function startChat(req, res) {
     });
   } catch (error) {
     res.status(500).json({
-      error: "Gemini chat failed. Check your API key, model name, internet connection, and quota."
+      error: "Ollama chat failed. Make sure Ollama is running and the selected model is installed."
     });
   }
 }
@@ -89,7 +89,7 @@ export async function continueChat(req, res) {
       text: message.trim()
     });
 
-    const reply = await sendMessageToGemini(session.messages, model);
+    const reply = await sendMessageToOllama(session.messages, model);
 
     session.messages.push({
       role: "ai",
@@ -101,9 +101,9 @@ export async function continueChat(req, res) {
     res.json({
       reply
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
-      error: "Gemini chat failed"
+      error: "Ollama chat failed"
     });
   }
 }

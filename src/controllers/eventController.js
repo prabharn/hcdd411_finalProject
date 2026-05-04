@@ -27,7 +27,6 @@ function parseAiEventText(text) {
 
 export async function getEvents(req, res) {
   const month = req.query.month;
-
   const query = {};
 
   if (month) {
@@ -73,7 +72,6 @@ export async function createEventFromAi(req, res) {
   }
 
   const parsedEvent = parseAiEventText(text);
-
   const event = await CalendarEvent.create(parsedEvent);
 
   res.json(event);
